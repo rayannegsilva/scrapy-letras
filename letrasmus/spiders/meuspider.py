@@ -1,11 +1,12 @@
 import scrapy
 import csv
 
-# rodar com scrapy crawl myspider
+# rode com scrapy crawl myspider
 
 class MySpider(scrapy.Spider):
+    #Coloque o link do álbum do site Letras
     name = 'myspider'
-    start_urls = ['https://www.letras.mus.br/taylor-swift/discografia/midnights-the-late-night-edition-2023/']
+    start_urls = ['https://www.letras.mus.br/andy-shauf/discografia/the-party-2016/']
 
    
     song_data_list = []
@@ -14,6 +15,7 @@ class MySpider(scrapy.Spider):
 
     def parse(self, response):
         song_list = response.css('ul.songList-table-content li.songList-table-row')
+        print(song_list)
         track_n = 1
 
         for song in song_list:
@@ -25,28 +27,26 @@ class MySpider(scrapy.Spider):
     def parse_song(self, response):
      
         song_title = response.css('.head-title::text').get()
+        print(song_title)
 
         lyric_lines = response.css('.lyric-original p::text').getall()
 
         if song_title and lyric_lines:
-            # Se o título da faixa atual for diferente do anterior, atualize o título da faixa atual e redefina a contagem de linha
             if song_title != self.current_track_title:
                 self.current_track_title = song_title
                 self.line_number = 1
 
+            # É necessário por o nome do álbum manualmente
             for lyric_line in lyric_lines:
                 song_data = {
-                    "album_name": "midnights",
+                    "album_name": "the party",
                     "track_title": song_title.strip(),
                     "track_n": response.meta.get('track_n'),
                     "lyric": lyric_line.strip(),
                     "line": self.line_number
                 }
 
-                # Incrementa a contagem de linha
                 self.line_number += 1
-
-                # Adicione os dados da música à lista de dados
                 self.song_data_list.append(song_data)
 
     def closed(self, reason):
